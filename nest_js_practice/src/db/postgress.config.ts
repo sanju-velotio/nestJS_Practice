@@ -12,4 +12,5 @@ export const AppDataSource= new DataSource({
     entities: [User1Entity],
     subscribers: [],
     migrations: [],
+    uuidExtension:"pgcrypto"
 })

@@ -6,8 +6,6 @@ import { UserService } from "src/User/user.service"
 
 @Controller("auth")
 export class AuthController{
-    // user user service as depedancy injection here
-
     constructor(private readonly userService:UserService){}
     @Post("/login")
     login(@Body() loginDto:loginDto){
