@@ -1,59 +1,95 @@
 
-import {Controller, Get, Post, Delete, Patch,Req,Body,Param} from "@nestjs/common"
+import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException } from "@nestjs/common"
 import { UserService } from "./user.service"
-import {Request} from "express"
+import { Request, Response } from "express"
 import { UserInfoInterface } from "./dto/user.dto"
 import { User1Entity } from "src/db/Entities/user.entity"
 
 
+
 @Controller("user")
-export class UserController{
-    constructor(private readonly userService:UserService){} 
+export class UserController {
+    constructor(private readonly userService: UserService) { } // TODO re-again in deeply
+
+
     @Get("/all")
-    getUser():Promise<User1Entity[]>{
+    async getUser(): Promise<User1Entity[]> {
         try {
             return this.userService.getAllUsers()
         } catch (err) {
-            console.log("error on get user")
-            console.log(err)
-            throw new Error(err)
+            console.log("error on get all Users",err)
+            throw new HttpException(err, 500)
         }
     }
-
     @Get("/:id")
-    getUserById(@Param() param:{id:string}):Promise<string | User1Entity>{
+    async getUserById(@Param() param: { id: string }) { //TODO: don;t pass res
         try {
-            return this.userService.getUserById(param.id)
+           const result= await this.userService.getUserById(param.id)
+        //    if(result.statusCode===404){
+        //        throw new NotFoundException(result.message) // TODO: read Exp
+        //     }
+            return result
         } catch (err) {
-            console.log("error during get user via id",err)
+            console.log("error during get user via id", err)
+            throw new HttpException(err, 500)
         }
     }
     @Post("/add")
-    addUser(@Req() req:Request,@Body() incomingUserBody:UserInfoInterface):Promise<string>{
+    async addUser(@Res() res:Response,@Body() incomingUserBody: UserInfoInterface) {
         try {
-            return this.userService.addNewUser(incomingUserBody.name,incomingUserBody.lname,incomingUserBody.age,incomingUserBody.email,incomingUserBody.password)
+            const result = await this.userService.addNewUser(
+                incomingUserBody.name,
+                incomingUserBody.lname,
+                incomingUserBody.age,
+                incomingUserBody.email,
+                incomingUserBody.password)
+            if (result.statusCode === 201) {
+                res.status(201).send(result.message)
+                return 
+            }
+            else if (result.statusCode === 409) {
+                return res.status(409).send(result.message)
+            }
+            else if (result.statusCode === 400) {
+                return res.status(400).send(result.message)
+            }
         } catch (err) {
-            console.log("error on add point",err)
-            throw new Error(err)
+            console.log("error on add point", err)
+            throw new HttpException("server error", 500)
         }
     }
     @Patch("/update/:id")
-    updateUser(@Req() req:Request, @Body() userEmailForUpdation:Pick<UserInfoInterface,"email">,@Param() params:{id:string}):Promise<string>{
+   async updateUser(@Res() res: Response, @Body() userEmailForUpdation: Pick<UserInfoInterface, "email">, @Param() params: { id: string }) {
         try {
-            return  this.userService.updateUser(userEmailForUpdation.email,params.id)
+            const result= await this.userService.updateUser(userEmailForUpdation.email, params.id)
+            if(result.statusCode===200){
+                return res.status(200).json(result)
+            }
+            else if(result.statusCode===400){
+                return res.status(400).json(result)
+            }
+            else if(result.statusCode===404){
+                return res.status(404).json(result)
+            }
         } catch (err) {
-            console.log("error on update end point",err)
+            console.log("error on update end point", err)
             console.log(err)
-            throw new Error(err)
+            throw new HttpException(err, 500)
         }
     }
     @Delete("/delete/:id")
-    deleteUser(@Req() req:Request, @Param() params:{id:string}):Promise<string>{
+   async deleteUser(@Res() res: Response, @Param() params: { id: string }) {
         try {
-            return this.userService.deleteUser(params.id)
+            const result= await this.userService.deleteUser(params.id)
+            if(result.statusCode===200){
+                return res.status(200).json(result)
+            }
+            else if(result.statusCode===404){
+                return res.status(404).json(result)
+            }
         } catch (err) {
-            console.log("error on delete end point",err)
-            throw new Error(err)
+            console.log("error on delete end point", err)
+            throw new HttpException(err, 500)
         }
     }
 }

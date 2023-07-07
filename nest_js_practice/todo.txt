@@ -1,7 +1,18 @@
-[+]: what is three main component in NestJs.
-[+]: how to create routes endpoints.
-[+]: how to create Services and integrate with controllers.
-[+]: how to defined DTO.
-[+]: What is Validation data in req and How to skip unwanted data request.
-[+]: how to get request paylaod.
-[+]: how to handle Error handling.
+[-]: what is three main component in NestJs.
+[-]: how to create routes endpoints.
+[-]: how to create Services and integrate with controllers.
+[-]: how to defined DTO.
+[-]: What is Validation data in req and How to skip unwanted data request.
+[-]: how to get request paylaod.
+[-]: explore status code
+[-]: how to handle Error handling.
+[+]:  first test service(unit tests)
+[+]:  jump to Authentication and Authorization.
+[+]:Dependancy Injections
+
+
+
+
+TODO: TypeORM
+[-]: Query Builder API in TypeOrm
+[+]: why we use repository instead of manager, what adavantage of repository
