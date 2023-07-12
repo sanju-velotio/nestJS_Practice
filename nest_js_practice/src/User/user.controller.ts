@@ -25,9 +25,6 @@ export class UserController {
     async getUserById(@Param() param: { id: string }) { //TODO: don;t pass res
         try {
            const result= await this.userService.getUserById(param.id)
-        //    if(result.statusCode===404){
-        //        throw new NotFoundException(result.message) // TODO: read Exp
-        //     }
             return result
         } catch (err) {
             console.log("error during get user via id", err)
@@ -35,24 +32,15 @@ export class UserController {
         }
     }
     @Post("/add")
-    async addUser(@Res() res:Response,@Body() incomingUserBody: UserInfoInterface) {
+    async addUser(@Body() incomingUserBody: UserInfoInterface) {
         try {
-            const result = await this.userService.addNewUser(
+          return await this.userService.addNewUser(
                 incomingUserBody.name,
                 incomingUserBody.lname,
                 incomingUserBody.age,
                 incomingUserBody.email,
-                incomingUserBody.password)
-            if (result.statusCode === 201) {
-                res.status(201).send(result.message)
-                return 
-            }
-            else if (result.statusCode === 409) {
-                return res.status(409).send(result.message)
-            }
-            else if (result.statusCode === 400) {
-                return res.status(400).send(result.message)
-            }
+                incomingUserBody.password
+                )
         } catch (err) {
             console.log("error on add point", err)
             throw new HttpException("server error", 500)

@@ -1,5 +1,5 @@
 
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException,ConflictException } from "@nestjs/common"
 import { v4 as uuid } from "uuid"
 import { AppDataSource } from "../db/postgress.config"
 import { User1Entity } from "../db/Entities/user.entity"
@@ -20,7 +20,7 @@ export class UserService {
     async getUserById(id: string) {
         const user = await Users.findOneBy({ id: id })
         if (!user) {
-            throw new NotFoundException()
+            throw new NotFoundException("user not found with this id")
         }
         return user
     }
@@ -39,11 +39,11 @@ export class UserService {
         return { statusCode: 200, message: findUser }
     }
 
-    async addNewUser(name: string, lname: string, age: number, email: string, password: string): ReturnType {
+    async addNewUser(name: string, lname: string, age: number, email: string, password: string) {
         const UserEntityInstance = new User1Entity()
         console.log({ name, lname, age, email })
         if (!name || !lname || !age || !email || !password) {
-            return { statusCode: 400, message: "something missing" }
+            throw new BadRequestException()
         }
         //check is already exits or not
         const isAlreadyExist = await Users.findOneBy({ email: email })
@@ -54,10 +54,10 @@ export class UserService {
             UserEntityInstance.age = +age
             UserEntityInstance.email = email
             UserEntityInstance.password = password
-            const result = await Users.save(UserEntityInstance)
-            return { statusCode: 201, message: result.id }
+            await Users.save(UserEntityInstance)
         }
-        return { statusCode: 409, message: "user already exists with this email" }
+        
+        throw new ConflictException("user already exist with this email")
     }
 
     async updateUser(email: string, id: string): ReturnType {
