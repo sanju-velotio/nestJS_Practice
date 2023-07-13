@@ -43,9 +43,8 @@ export class UserService {
         const UserEntityInstance = new User1Entity()
         console.log({ name, lname, age, email })
         if (!name || !lname || !age || !email || !password) {
-            throw new BadRequestException()
+            throw new BadRequestException("missing something")
         }
-        //check is already exits or not
         const isAlreadyExist = await Users.findOneBy({ email: email })
         if (!isAlreadyExist) {
             UserEntityInstance.id = uuid()
@@ -56,31 +55,38 @@ export class UserService {
             UserEntityInstance.password = password
             await Users.save(UserEntityInstance)
         }
+        else{
+            throw new ConflictException("user already exist with this email")
+        }
         
-        throw new ConflictException("user already exist with this email")
     }
 
-    async updateUser(email: string, id: string): ReturnType {
-        console.log({ email, id })
+    async updateUser(email: string, id: string) {
         if (!email || !id) {
-            return { statusCode: 400, message: "something missing" }
+            throw new BadRequestException("something missing")
         }
         const checkUserExistWithId = await Users.findOneBy({ id: id })
         if (!checkUserExistWithId) {
-            return { statusCode: 404, message: "user not exists with this id" }
+            throw new NotFoundException("user not exist with this Id")
         }
-        checkUserExistWithId.email = email
-        await Users.save(checkUserExistWithId)
-        return { statusCode: 200, message: "email successfull update" }
+        else if(checkUserExistWithId.email===email){
+            throw new BadRequestException("email is updated")
+        }
+        else{
+            checkUserExistWithId.email = email
+            await Users.save(checkUserExistWithId)
+        }
     }
 
-    async deleteUser(id: string): ReturnType {
+    async deleteUser(id: string) {
+        if(!id){
+            throw new BadRequestException("something missing")
+        }
         const findUser = await Users.findOneBy({ id: id })
         if (!findUser) {
-            return { statusCode: 404, message: "user is not exists with this id" }
+            throw new NotFoundException("user not exist with this id")
         }
         const result = await Users.delete(findUser)
         console.log({ result })
-        return { statusCode: 200, message: "user is successfull delete" }
     }
 }
