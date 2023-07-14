@@ -1,5 +1,5 @@
 
-import { BadRequestException, Injectable, NotFoundException,ConflictException } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException,ConflictException, UnauthorizedException } from "@nestjs/common"
 import { v4 as uuid } from "uuid"
 import { AppDataSource } from "../db/postgress.config"
 import { User1Entity } from "../db/Entities/user.entity"
@@ -18,25 +18,24 @@ export class UserService {
     }
 
     async getUserById(id: string) {
-        const user = await Users.findOneBy({ id: id })
+        const user = await Users.findOneBy({ id })
         if (!user) {
             throw new NotFoundException("user not found with this id")
         }
         return user
     }
 
-    async getUserViaEmail(email: string, password: string): ReturnType {
+    async getUserViaEmail(email: string, password: string) {
         if (!email || !password) {
-            return { statusCode: 400, message: "something missing" }
+            throw new BadRequestException("something missing.")
         }
         const findUser = await Users.findOneBy({ email: email })
         if (!findUser) {
-            return { statusCode: 404, message: "user does not exist" }
+            throw new NotFoundException("user noit found")
         }
         if (findUser.password !== password) {
-            return { statusCode: 401, message: "invalid credentials" }
+            throw new UnauthorizedException()
         }
-        return { statusCode: 200, message: findUser }
     }
 
     async addNewUser(name: string, lname: string, age: number, email: string, password: string) {
@@ -86,7 +85,6 @@ export class UserService {
         if (!findUser) {
             throw new NotFoundException("user not exist with this id")
         }
-        const result = await Users.delete(findUser)
-        console.log({ result })
+     await Users.delete(findUser)
     }
 }

@@ -4,6 +4,7 @@ import { UserService } from "./user.service"
 import { UserInfoInterface } from "./dto/user.dto"
 import { User1Entity } from "src/db/Entities/user.entity"
 
+
 @Controller("user")
 export class UserController {
     constructor(private readonly userService: UserService) { } // TODO: re-again in deeply
@@ -18,14 +19,16 @@ export class UserController {
     }
 
     @Get("/:id")
-    async getUserById(@Param() param: { id: string }) { //TODO: don;t pass res
+    async getUserById(@Param("id") id: string) { //TODO: don;t pass res
         try {
-           return this.userService.getUserById(param.id)
+            console.log(id)
+           return this.userService.getUserById(id)
         } catch (err) {
             console.log("error during get user via id", err)
             throw new HttpException(err, 500)
         }
     }
+
     @Post("/add")
     async addUser(@Body() incomingUserBody: UserInfoInterface) {
         try {
@@ -41,6 +44,7 @@ export class UserController {
             throw new HttpException("server error", 500)
         }
     }
+
     @Patch("/update/:id")
    async updateUser( @Body() userEmailForUpdation: Pick<UserInfoInterface, "email">, @Param() params: { id: string }) {
         try {
@@ -51,6 +55,7 @@ export class UserController {
             throw new HttpException(err, 500)
         }
     }
+
     @Delete("/delete/:id")
    async deleteUser(@Param(ParseIntPipe) params: { id: string }) {
     console.log(params)
