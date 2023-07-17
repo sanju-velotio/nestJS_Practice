@@ -57,10 +57,11 @@ export class UserController {
     }
 
     @Delete("/delete/:id")
-   async deleteUser(@Param(ParseIntPipe) params: { id: string }) {
+   async deleteUser(@Param() params: { id: string }) {
     console.log(params)
         try {
             const result= await this.userService.deleteUser(params.id)
+            console.log({result})
         } catch (err) {
             console.log("error on delete end point", err)
             throw new HttpException(err, 500)

@@ -3,11 +3,10 @@ import { BadRequestException, Injectable, NotFoundException,ConflictException, U
 import { v4 as uuid } from "uuid"
 import { AppDataSource } from "../db/postgress.config"
 import { User1Entity } from "../db/Entities/user.entity"
-import { ReturnType } from "./Types/user.service.types"
 const Users = AppDataSource.getRepository(User1Entity) // TODO
 
 
-@Injectable()
+@Injectable()   
 export class UserService {
     async getAllUsers() {
         const withoutCredentials = await Users
@@ -43,7 +42,7 @@ export class UserService {
         console.log({ name, lname, age, email })
         if (!name || !lname || !age || !email || !password) {
             throw new BadRequestException("missing something")
-        }
+        }uuid
         const isAlreadyExist = await Users.findOneBy({ email: email })
         if (!isAlreadyExist) {
             UserEntityInstance.id = uuid()

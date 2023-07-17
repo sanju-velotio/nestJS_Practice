@@ -1,9 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from './user.service';
 import { User1Entity } from '../db/Entities/user.entity';
-import { DataSource } from 'typeorm';
-// import { AppDataSource } from '../db/postgress.config';
-export const AppDataSource= new DataSource({
+import { Any, DataSource } from 'typeorm';
+import { UserController } from './user.controller';
+import {v4 as uuid} from "uuid"
+
+
+jest.setTimeout(30000)
+const AppDataSource= new DataSource({
     type: "postgres",
     host: "localhost",
     port: 5432,
@@ -11,29 +15,36 @@ export const AppDataSource= new DataSource({
     password: "sanju@123",
     database: "postgres",
     synchronize: true,
-    logging: true,
+    logging: false,
     entities: [User1Entity],
     subscribers: [],
     migrations: [],
-    uuidExtension:"pgcrypto"
+    // uuidExtension:"pgcrypto"
 })
 
 
 let dummyUsers = [
     { id: "1", name: "John", age: 21, lname: "Doe", email: "John@gmail.com", password: "password" },
     { id: "2", name: "Jane", age: 22, lname: "Smith", email: "Jane@gmail.com", password: "password" },
-    { id: "1", name: "Chriss", age: 25, lname: "Hemsworth", email: "chris@gmail.com", password: "password" },
-    { id: "1", name: "Dave", age: 27, lname: "Gray", email: "dave@gmail.com", password: "password" },
+    { id: "3", name: "Chriss", age: 25, lname: "Hemsworth", email: "chris@gmail.com", password: "password" },
+    { id: "4", name: "Dave", age: 27, lname: "Gray", email: "dave@gmail.com", password: "password" },
 ]
 
+const dummyOneUser= { id: "1", name: "John", age: 21, lname: "Doe", email: "John@gmail.com", password: "password" }
 
 describe('UserService', () => {
     let service: UserService;
+    beforeAll(async()=>{
+        await AppDataSource.initialize()
+    })
+
+    afterAll(async()=>{
+        await AppDataSource.destroy()
+    })
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [UserService],
         }).compile();
-
         service = module.get<UserService>(UserService);
     });
 
@@ -46,22 +57,33 @@ describe('UserService', () => {
             // Mock the Users repository or database access
             const User =  AppDataSource.getRepository(User1Entity)
             const mockUsers: User1Entity[] = [];
-            dummyUsers.forEach(async (item) => {
-                const UserEntityInstance = new User1Entity()
-                UserEntityInstance.id = item.id
-                UserEntityInstance.name = item.name
-                UserEntityInstance.lname = item.lname
-                UserEntityInstance.age = item.age
-                UserEntityInstance.email = item.email
-                UserEntityInstance.password = item.password
-                const result = await User.save(UserEntityInstance)
-                mockUsers.push(result)
-            })
-            // jest.spyOn(service, 'getAllUsers').mockResolvedValue(mockUsers);
+            let UserEntityInstance = new User1Entity()
+            UserEntityInstance.id=dummyOneUser.id
+            UserEntityInstance.name=dummyOneUser.name
+            UserEntityInstance.lname=dummyOneUser.lname
+            UserEntityInstance.age= dummyOneUser.age
+            UserEntityInstance.email=dummyOneUser.email
+            UserEntityInstance.password=dummyOneUser.password
+            const saveData= await User.save(UserEntityInstance)
+            mockUsers.push(saveData)
+            jest.spyOn(service,"getAllUsers").mockResolvedValue(mockUsers)          
             const result = await service.getAllUsers();
-            console.log("result during getAll user", { result })
             expect(result).toEqual(mockUsers);
         });
     });
 
+    describe("GetUserById",()=>{
+        it("get user by id if it is exist",async()=>{
+            jest.spyOn(service,"getUserById").mockResolvedValue(dummyOneUser)
+            const result= await service.getUserById(dummyOneUser.id)
+            expect(result).toEqual(dummyOneUser)
+        })
+
+        it("when user not exist with this id",async()=>{
+            jest.spyOn(service,"getUserById").mockResolvedValue(null)
+            const result= await service.getUserById("999")
+            console.log("get user which not exist",result)
+            expect(result).toEqual(404)
+        })
+    })
 });

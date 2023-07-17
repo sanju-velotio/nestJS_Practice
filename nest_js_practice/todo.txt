@@ -16,3 +16,11 @@
 TODO: TypeORM
 [-]: Query Builder API in TypeOrm
 [+]: why we use repository instead of manager, what adavantage of repository
+
+
+
+TODO: jest
+[+]: jest.spyOne, what is do this and what is purpose of use this.
+
+
+DEBUG:
