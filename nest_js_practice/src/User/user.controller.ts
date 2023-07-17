@@ -7,7 +7,7 @@ import { User1Entity } from "src/db/Entities/user.entity"
 
 @Controller("user")
 export class UserController {
-    constructor(private readonly userService: UserService) { } // TODO: re-again in deeply
+    constructor(private readonly userService: UserService) { } 
     @Get("/all")
     async getUser(): Promise<User1Entity[]> {
         try {
@@ -19,7 +19,7 @@ export class UserController {
     }
 
     @Get("/:id")
-    async getUserById(@Param("id") id: string) { //TODO: don;t pass res
+    async getUserById(@Param("id") id: string) { 
         try {
             console.log(id)
            return this.userService.getUserById(id)

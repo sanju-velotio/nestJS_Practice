@@ -2,6 +2,10 @@
 /dist
 /node_modules
 
+
+test.txt
+
+
 # Logs
 logs
 *.log
