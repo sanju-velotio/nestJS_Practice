@@ -1,13 +1,14 @@
 
-import { BadRequestException, Injectable, NotFoundException,ConflictException, UnauthorizedException } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException,ConflictException, UnauthorizedException, Scope } from "@nestjs/common"
 import { v4 as uuid } from "uuid"
 import { AppDataSource } from "../db/postgress.config"
 import { User1Entity } from "../db/Entities/user.entity"
 const Users = AppDataSource.getRepository(User1Entity) // TODO
 
 
-@Injectable()   
+@Injectable() 
 export class UserService {
+
     async getAllUsers() {
         const withoutCredentials = await Users
             .createQueryBuilder("user")
@@ -30,10 +31,13 @@ export class UserService {
         }
         const findUser = await Users.findOneBy({ email: email })
         if (!findUser) {
-            throw new NotFoundException("user noit found")
+            throw new NotFoundException("user not found")
         }
         if (findUser.password !== password) {
             throw new UnauthorizedException()
+        }
+        else{
+            return findUser
         }
     }
 
@@ -85,5 +89,16 @@ export class UserService {
             throw new NotFoundException("user not exist with this id")
         }
      await Users.delete(findUser)
+    }
+
+    async getUserbyAge(age:number) {
+        if(!age){
+            throw new BadRequestException("age number is missing")
+        }
+        const result= await Users.findOneBy({age:age})
+        if(!result){
+            throw new NotFoundException("user not found with this age")
+        }
+        return result
     }
 }

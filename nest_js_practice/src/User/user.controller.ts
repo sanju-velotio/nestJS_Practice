@@ -1,8 +1,9 @@
 
-import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe } from "@nestjs/common"
+import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe, HttpStatus, ParseUUIDPipe } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { UserInfoInterface } from "./dto/user.dto"
 import { User1Entity } from "src/db/Entities/user.entity"
+import { UUID } from "crypto"
 
 
 @Controller("user")
@@ -64,6 +65,19 @@ export class UserController {
             console.log({result})
         } catch (err) {
             console.log("error on delete end point", err)
+            throw new HttpException(err, 500)
+        }
+    }
+
+
+    @Get("/age/:id")
+    getUserByAge(@Param("id",new ParseIntPipe({errorHttpStatusCode:HttpStatus.NOT_ACCEPTABLE})) id:number){
+        try {
+            console.log(id)
+            console.log(typeof id)
+            return this.userService.getUserbyAge(id)
+        } catch (err) {
+            console.log(err)
             throw new HttpException(err, 500)
         }
     }

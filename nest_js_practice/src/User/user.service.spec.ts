@@ -83,7 +83,22 @@ describe('UserService', () => {
             jest.spyOn(service,"getUserById").mockResolvedValue(null)
             const result= await service.getUserById("999")
             console.log("get user which not exist",result)
-            expect(result).toEqual(404)
+            expect(result).toEqual(null)
+        })
+    })
+
+    describe("get user by mail",()=>{
+        it("should return user if it is found with email ",async()=>{
+            jest.spyOn(service,"getUserViaEmail").mockResolvedValue(dummyOneUser)
+            const result= await service.getUserViaEmail(dummyOneUser.email,dummyOneUser.password)
+            console.log({result})
+            expect(result).toEqual(dummyOneUser)
+        })
+        it("should return error message when user is not exist with this mail id",async()=>{
+            jest.spyOn(service,"getUserViaEmail").mockResolvedValue(null)
+            const result=await service.getUserViaEmail("abc@gmail.com","123@/")
+            console.log({result})
+            expect(result).toBe(null)
         })
     })
 });
