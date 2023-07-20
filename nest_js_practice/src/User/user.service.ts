@@ -1,13 +1,20 @@
 
-import { BadRequestException, Injectable, NotFoundException,ConflictException, UnauthorizedException, Scope } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException, ConflictException, UnauthorizedException } from "@nestjs/common"
+import { InjectRepository } from "@nestjs/typeorm";
 import { v4 as uuid } from "uuid"
 import { AppDataSource } from "../db/postgress.config"
 import { User1Entity } from "../db/Entities/user.entity"
-const Users = AppDataSource.getRepository(User1Entity) // TODO
+import { Repository } from "typeorm";
+const Users = AppDataSource.getRepository(User1Entity)
 
-
-@Injectable() 
+@Injectable()
 export class UserService {
+
+    // TODO: inject Repository as dependancy and write test case
+    // constructor(
+    //     @InjectRepository(User1Entity)
+    //     private readUsers: Repository<User1Entity>
+    //     ){}
 
     async getAllUsers() {
         const withoutCredentials = await Users
@@ -34,9 +41,9 @@ export class UserService {
             throw new NotFoundException("user not found")
         }
         if (findUser.password !== password) {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException("invalid credentials")
         }
-        else{
+        else {
             return findUser
         }
     }
@@ -46,7 +53,8 @@ export class UserService {
         console.log({ name, lname, age, email })
         if (!name || !lname || !age || !email || !password) {
             throw new BadRequestException("missing something")
-        }uuid
+        }
+
         const isAlreadyExist = await Users.findOneBy({ email: email })
         if (!isAlreadyExist) {
             UserEntityInstance.id = uuid()
@@ -55,12 +63,10 @@ export class UserService {
             UserEntityInstance.age = +age
             UserEntityInstance.email = email
             UserEntityInstance.password = password
-            await Users.save(UserEntityInstance)
+            const result = await Users.save(UserEntityInstance)
+            return result
         }
-        else{
-            throw new ConflictException("user already exist with this email")
-        }
-        
+        throw new ConflictException("user already exist with this email")
     }
 
     async updateUser(email: string, id: string) {
@@ -71,32 +77,35 @@ export class UserService {
         if (!checkUserExistWithId) {
             throw new NotFoundException("user not exist with this Id")
         }
-        else if(checkUserExistWithId.email===email){
+        else if (checkUserExistWithId.email === email) {
             throw new BadRequestException("email is updated")
         }
-        else{
+        else {
             checkUserExistWithId.email = email
-            await Users.save(checkUserExistWithId)
+            const result = await Users.save(checkUserExistWithId)
+            return result
         }
     }
 
     async deleteUser(id: string) {
-        if(!id){
-            throw new BadRequestException("something missing")
+        if (!id) {
+            throw new BadRequestException("id is missing")
         }
         const findUser = await Users.findOneBy({ id: id })
         if (!findUser) {
             throw new NotFoundException("user not exist with this id")
         }
-     await Users.delete(findUser)
+        const result = await Users.delete(findUser)
+        console.log("delee user",result)
+        return result.affected
     }
 
-    async getUserbyAge(age:number) {
-        if(!age){
+    async getUserbyAge(age: number) {
+        if (!age) {
             throw new BadRequestException("age number is missing")
         }
-        const result= await Users.findOneBy({age:age})
-        if(!result){
+        const result = await Users.findOneBy({ age: age })
+        if (!result) {
             throw new NotFoundException("user not found with this age")
         }
         return result

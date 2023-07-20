@@ -1,14 +1,16 @@
 
-import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe, HttpStatus, ParseUUIDPipe } from "@nestjs/common"
+import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe, HttpStatus, ParseUUIDPipe, UseGuards } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { UserInfoInterface } from "./dto/user.dto"
 import { User1Entity } from "src/db/Entities/user.entity"
-import { UUID } from "crypto"
+import { AuthGuard } from "@nestjs/passport"
 
 
 @Controller("user")
 export class UserController {
     constructor(private readonly userService: UserService) { } 
+
+    @UseGuards(AuthGuard("jwt"))
     @Get("/all")
     async getUser(): Promise<User1Entity[]> {
         try {
@@ -73,8 +75,6 @@ export class UserController {
     @Get("/age/:id")
     getUserByAge(@Param("id",new ParseIntPipe({errorHttpStatusCode:HttpStatus.NOT_ACCEPTABLE})) id:number){
         try {
-            console.log(id)
-            console.log(typeof id)
             return this.userService.getUserbyAge(id)
         } catch (err) {
             console.log(err)

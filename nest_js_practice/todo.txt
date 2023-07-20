@@ -8,16 +8,20 @@
 [-]: how to handle Error handling.
 [+]:  first test service(unit tests)
 [+]:  jump to Authentication and Authorization.
-[+]:Dependancy Injections
-
+[-]:Dependancy Injections
 [-]: Pipes in nestJS 
-[+]: middleware in nest js
+[-]: middleware in nest js
+[+]: what is Gaurd in NestJS
+[+]:  How to create custom request handler decorator.
+[+]:  How to create custom Auth Gaurd.
+[+]: Jwt Module in details and Authentication.
 
 
 
 
 
 TODO: TypeORM
+[+]: read all about typeorm operations how to perform operations in
 [-]: Query Builder API in TypeOrm
 [+]: why we use repository instead of manager, what adavantage of repository
 

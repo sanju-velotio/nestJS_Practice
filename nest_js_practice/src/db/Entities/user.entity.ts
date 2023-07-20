@@ -1,9 +1,9 @@
 import { Column, PrimaryGeneratedColumn, Entity } from "typeorm"
-import {v4 as UUID} from "uuid"
+import { v4 as UUID } from "uuid"
 
 @Entity()
 export class User1Entity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn("uuid")
     id: string
 
     @Column()
