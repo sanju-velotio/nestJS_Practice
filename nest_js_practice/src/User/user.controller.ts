@@ -1,16 +1,18 @@
 
-import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe, HttpStatus, ParseUUIDPipe, UseGuards } from "@nestjs/common"
+import { Controller, Get, Post, Delete, Patch, Body, Param, HttpException,Res, NotFoundException, ParseIntPipe, HttpStatus, ParseUUIDPipe, UseGuards, UseInterceptors } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { UserInfoInterface } from "./dto/user.dto"
 import { User1Entity } from "src/db/Entities/user.entity"
 import { AuthGuard } from "@nestjs/passport"
+import { UserInterCeptor } from "./interceptor/user.interceptors"
 
 
 @Controller("user")
+@UseInterceptors(UserInterCeptor)
 export class UserController {
     constructor(private readonly userService: UserService) { } 
 
-    @UseGuards(AuthGuard("jwt"))
+    // @UseGuards(AuthGuard("jwt"))
     @Get("/all")
     async getUser(): Promise<User1Entity[]> {
         try {
